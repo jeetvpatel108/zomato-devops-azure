@@ -1,4 +1,4 @@
-FROM node:16-slim AS builder
+FROM --platform=linux/arm64 node:16-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
