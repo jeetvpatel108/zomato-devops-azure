@@ -48,7 +48,7 @@ steps:
 - task: SonarQubePublish@7
   displayName: 'Publish SonarQube Results'
   inputs:
-    pollingTimeoutSec: '300'git
+    pollingTimeoutSec: '300'
 
 - task: Docker@2
   displayName: 'Build Docker Image'
