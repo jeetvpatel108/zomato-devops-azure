@@ -2,11 +2,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysvc
+  name: zomato-service
+  labels:
+    app: zomato
 spec:
   type: LoadBalancer
   selector:
-    app: swiggy
+    app: zomato
   ports:
-    - port: 3000
+    - port: 80
       targetPort: 3000
+      protocol: TCP

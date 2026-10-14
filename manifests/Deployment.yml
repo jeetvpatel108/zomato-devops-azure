@@ -2,20 +2,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myapp
+  name: zomato
+  labels:
+    app: zomato
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: swiggy
+      app: zomato
   template:
     metadata:
       labels:
-        app: swiggy
+        app: zomato
     spec:
       containers:
-        - name: cont-1
-          image: shaikmustafa77/ccitrepo:zomato
+        - name: zomato
+          image: zomatoacr1410.azurecr.io/zomato:latest
           ports:
             - containerPort: 3000
-            
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
