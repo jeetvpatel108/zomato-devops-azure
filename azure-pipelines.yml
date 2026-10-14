@@ -8,7 +8,7 @@ pool:
 
 variables:
   sonarConnection: 'SonarQube'          # must match your service connection name exactly
-  acrConnection: 'acr-connection'       # must match your service connection name exactly
+  acrConnection: 'Zomatodocker'       # must match your service connection name exactly
   acrName: 'zomatoacr1410'              # 👈 your ACR name
   imageRepository: 'zomato'
   tag: '$(Build.BuildId)'
