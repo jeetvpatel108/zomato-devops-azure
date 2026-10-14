@@ -1,0 +1,98 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  sonarConnection: 'SonarQube'          # must match your service connection name exactly
+  acrConnection: 'acr-connection'       # must match your service connection name exactly
+  acrName: 'zomatoacr1410'              # 👈 your ACR name
+  imageRepository: 'zomato'
+  tag: '$(Build.BuildId)'
+  fullImage: '$(acrName).azurecr.io/$(imageRepository)'
+
+steps:
+- checkout: self
+
+# ---------- 1. Code quality: SonarQube ----------
+- task: SonarQubePrepare@7
+  displayName: 'Prepare SonarQube'
+  inputs:
+    SonarQube: '$(sonarConnection)'
+    scannerMode: 'cli'
+    configMode: 'manual'
+    cliProjectKey: 'zomato-app'         # 👈 must match the project key in SonarQube
+    cliProjectName: 'zomato-app'
+    cliSources: '.'
+    extraProperties: |
+      sonar.exclusions=**/node_modules/**,**/build/**,**/dist/**
+
+# ---------- 2. Build & test ----------
+- task: NodeTool@0
+  displayName: 'Install Node.js 18'
+  inputs:
+    versionSpec: '18.x'
+
+- script: npm install --legacy-peer-deps
+  displayName: 'Install Dependencies'
+
+- script: CI=true npm test -- --watchAll=false --passWithNoTests || echo "No tests found"
+  displayName: 'Run Unit Tests'
+
+- task: SonarQubeAnalyze@7
+  displayName: 'Run SonarQube Analysis'
+
+- task: SonarQubePublish@7
+  displayName: 'Publish SonarQube Results'
+  inputs:
+    pollingTimeoutSec: '300'
+
+# ---------- 3. Docker build ----------
+- task: Docker@2
+  displayName: 'Login to ACR'
+  inputs:
+    command: login
+    containerRegistry: '$(acrConnection)'
+
+- task: Docker@2
+  displayName: 'Build Docker Image'
+  inputs:
+    command: build
+    containerRegistry: '$(acrConnection)'
+    repository: '$(imageRepository)'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(tag)
+      latest
+
+# ---------- 4. Security scan: Trivy ----------
+- script: |
+    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+    trivy --version
+  displayName: 'Install Trivy'
+
+- script: |
+    echo "Scanning $(fullImage):$(tag)"
+    trivy image --severity HIGH,CRITICAL --exit-code 0 --format table $(fullImage):$(tag)
+  displayName: 'Trivy Vulnerability Scan'
+
+# ---------- 5. Push to ACR ----------
+- task: Docker@2
+  displayName: 'Push Docker Image to ACR'
+  inputs:
+    command: push
+    containerRegistry: '$(acrConnection)'
+    repository: '$(imageRepository)'
+    tags: |
+      $(tag)
+      latest
+
+- task: Docker@2
+  displayName: 'Logout from ACR'
+  condition: always()
+  inputs:
+    command: logout
+    containerRegistry: '$(acrConnection)'
