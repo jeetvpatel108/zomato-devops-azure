@@ -4,8 +4,6 @@ A React Zomato clone, shipped through a complete CI/CD pipeline on Azure: Azure 
 
 Every push to master is tested, checked for code quality, built into a container image and scanned for vulnerabilities. Argo CD keeps the AKS cluster in sync with the Kubernetes manifests in this repo.
 
-Show Image
-
 Tech stack
 Area	Tool
 Source control & CI	Azure Repos, Azure Pipelines
