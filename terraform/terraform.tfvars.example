@@ -1,2 +1,6 @@
-# Copy this file to terraform.tfvars and fill in your subscription ID
+# Copy this file to terraform.tfvars and fill in your values.
+# Get your subscription id:  az account show --query id -o tsv
 subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "canadacentral"
+acr_name        = "youruniqueacrname"      # globally unique, lowercase letters/numbers
+node_vm_size    = "Standard_D2ps_v6"        # must be allowed AND have vCPU quota in your sub/region

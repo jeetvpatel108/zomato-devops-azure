@@ -32,3 +32,8 @@ variable "node_vm_size" {
   type        = string
   default     = "Standard_B2s"
 }
+
+variable "acr_name" {
+  description = "Globally-unique ACR name (lowercase letters/numbers, 5-50 chars)"
+  type        = string
+}
