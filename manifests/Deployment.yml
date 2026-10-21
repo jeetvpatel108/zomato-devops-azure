@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: zomato
-          image: zomatoacr1410.azurecr.io/zomato:latest
+          image: zomatoacrjeet20.azurecr.io/zomato:latest
           ports:
             - containerPort: 3000
           resources:
