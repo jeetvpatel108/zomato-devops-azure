@@ -23,7 +23,7 @@ pipeline {
         IMAGE        = 'jeetpatel18109/zomato'
         // Trivy gate: '0' = report only, '1' = fail the build on fixable CRITICAL vulns.
         // Start with '0' to get a first green build, then switch to '1'.
-        TRIVY_GATE   = '0'
+        TRIVY_GATE   = '1'
     }
 
     stages {
