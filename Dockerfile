@@ -1,3 +1,4 @@
+# Stage 1: build the React app (build tools live ONLY in this stage)
 FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -9,11 +10,9 @@ RUN npm config set fetch-retries 5 \
 COPY . .
 RUN npm run build
 
-# Stage 2: Production
-FROM builder AS final
-WORKDIR /app
-COPY --from=builder /app/build ./build
-COPY package*.json ./
-RUN npm install --production --no-audit --no-fund --loglevel=error
+# Stage 2: ship only the finished static files, served by nginx as a non-root user
+FROM nginxinc/nginx-unprivileged:stable-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 3000
-CMD ["npm", "start"]
+# The base image already starts nginx in the foreground; no CMD needed.
